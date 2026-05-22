@@ -1,0 +1,47 @@
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1e272e; color: #d2dae2; text-align: center; margin: 0; padding: 20px; }
+h2 { color: #f1c40f; text-transform: uppercase; margin-bottom: 5px; }
+p { margin-top: 0; color: #808e9b; }
+
+.simulator { background: #2f3640; width: 900px; height: 500px; margin: 20px auto; border-radius: 10px; position: relative; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.5); border: 2px solid #576574; }
+.controls { background: #2f3640; width: 900px; margin: 0 auto; padding: 15px 20px; border-radius: 10px; box-sizing: border-box; display: flex; justify-content: center; align-items: center; gap: 15px; }
+
+select { padding: 12px 20px; font-size: 16px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; outline: none; background: #d2dae2; color: #1e272e; }
+
+/* -- CSS CHO NÚT TẠM DỪNG -- */
+.btn-pause { padding: 12px 20px; font-size: 16px; border-radius: 5px; border: none; cursor: pointer; font-weight: bold; outline: none; background: #e1b12c; color: #1e272e; transition: 0.3s; min-width: 120px; }
+.btn-pause:hover { background: #fbc531; }
+.btn-pause.paused { background: #e84118; color: white; }
+
+.status-badge { background: #4cd137; color: white; padding: 10px 15px; border-radius: 5px; font-weight: bold; animation: pulse 2s infinite; transition: 0.3s; }
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(76, 209, 55, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(76, 209, 55, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(76, 209, 55, 0); }
+}
+
+.title-box { position: absolute; top: 15px; left: 20px; font-size: 22px; color: #fbc531; font-weight: bold; z-index: 100; text-transform: uppercase; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+.hud-box { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #4cd137; font-weight: bold; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 5px; z-index: 100; display: none; }
+
+.obj { position: absolute; transition: all 1.2s ease-in-out; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; border-radius: 8px; box-sizing: border-box; }
+
+.thread { width: 60px; height: 60px; background: #3498db; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.4); border: 2px solid transparent; }
+.thread.t-a { background: #e84118; }
+.thread.t-b { background: #00a8ff; }
+.thread.t-c { background: #9c88ff; }
+.thread.t-d { background: #e1b12c; }
+
+.zone { border: 3px dashed #7f8fa6; border-radius: 10px; font-size: 18px; color: #7f8fa6; align-items: flex-start; padding-top: 10px; z-index: 10; background: rgba(127, 143, 166, 0.1); }
+.icon { font-size: 40px; z-index: 15; }
+
+.dim { opacity: 0.3 !important; filter: grayscale(100%); transform: scale(0.9); transition: all 0.5s; }
+.locked { border-color: #e84118 !important; color: #e84118 !important; background: rgba(232, 65, 24, 0.15) !important; box-shadow: inset 0 0 15px rgba(232, 65, 24, 0.4); }
+
+.tag { position: absolute; background: #2d3436; color: #f1c40f; padding: 6px 12px; border-radius: 5px; font-size: 14px; font-family: monospace; top: -40px; left: 50%; transform: translateX(-50%); white-space: nowrap; font-weight: bold; opacity: 0; transition: 0.3s; z-index: 50; box-shadow: 0 3px 6px rgba(0,0,0,0.4); pointer-events: none; border: 1px solid #7f8fa6; }
+.tag::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: #2d3436 transparent transparent transparent; }
+.tag.show { opacity: 1; top: -50px; }
+
+.lane { position: absolute; width: 100%; height: 2px; background: rgba(255,255,255,0.1); left: 0; }
+.gate { position: absolute; width: 12px; height: 350px; background: #e84118; left: 650px; top: 75px; transition: 0.5s; z-index: 15; box-shadow: 0 0 15px #e84118; border-radius: 6px; }
+.gate.open { background: #4cd137; box-shadow: 0 0 15px #4cd137; }
+.gate-tag { position: absolute; top: -35px; left: -50px; background: #2d3436; color: #f1c40f; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-family: monospace; font-size: 14px; opacity: 0; transition: 0.3s; border: 1px solid #7f8fa6;}

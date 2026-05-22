@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Code Python: Đồng Bộ Hóa Luồng</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <h2>Animation Tự Động: Phân Tích Cơ Chế</h2>
+
+    <div class="simulator" id="sim-screen"></div>
+
+    <div class="controls">
+        <select id="sim-select" onchange="initSim()">
+            <option value="thread" selected>1. Thread</option> 
+            <option value="lock">2. Lock</option>
+            <option value="rlock">3. RLock (Reentrant Lock)</option>
+            <option value="semaphore">4. Semaphore</option>
+            <option value="condition">5. Condition</option> 
+            <option value="event">6. Event</option>
+            <option value="race">7. Lỗi - Race Condition</option> 
+            <option value="deadlock">8. Lỗi - Deadlock</option>
+        </select>
+        
+        <button class="btn-pause" id="btn-pause" onclick="togglePause()">Tạm dừng</button>
+        
+        <div class="status-badge" id="status-badge">Đang chạy...</div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
