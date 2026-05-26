@@ -82,6 +82,7 @@ function initSim() {
         html += createBlock('p', 'thread t-a', 'Thợ', 'top: 265px; left: -150px;');
     } 
     else if (mode === 'event') {
+        // ... (Phần HTML generation giữ nguyên không đổi)
         html += createBlock('buffer', 'zone', 'Bộ Đệm', 'width: 280px; height: 180px; top: 160px; left: 500px;');
         html += `<div class="obj icon" id="data-item" style="top: 225px; left: 615px; opacity: 0; font-size: 50px; z-index: 15;">📦</div>`;
         html += `<div class="tag show" id="lock-status" style="top: 20px; left: 420px; font-size: 14px; border: 2px solid #3498db; color: #3498db; z-index: 100; padding: 6px 12px; transition: 0.3s;">Trạng thái Lock: Mở</div>`;
@@ -91,7 +92,6 @@ function initSim() {
         html += createBlock('prod', 'thread t-a', 'Thợ', 'top: 175px; left: -150px;');
 
     }
-
     else if (mode === 'race') {
         html += createBlock('db', 'zone', 'Tài Khoản Chung', 'width: 240px; height: 120px; top: 150px; left: 330px;');
         html += createBlock('t1', 'thread t-a', 'Luồng 1', 'top: 180px; left: -150px;');
@@ -256,7 +256,7 @@ function runVideoFrame() {
         if(frame === 17) { initSim(); }
     }
     
-    else if (mode === 'event') {
+else if (mode === 'event') {
         let sigStatus = document.getElementById('signal-status');
         let buffer = document.getElementById('buffer');
         let dataItem = document.getElementById('data-item');
@@ -295,34 +295,36 @@ function runVideoFrame() {
             }
         }
 
-        // Bước 5: Producer LÙI VỀ VỊ TRÍ CŨ ĐỨNG ĐỢI, Consumer nhận tín hiệu và thức dậy
+        // Bước 5: Producer gọi clear() ngay lập tức để reset cờ.
+        // Consumer đã kịp nhận tín hiệu (True) trước đó nên thức dậy.
         if(frame === 9) {
-            // SỬA TẠI ĐÂY: Producer lui về 320px thay vì 1000px
-            move('prod', '320px', '100px'); 
-            setTag('prod', ' ');
-
-            setDim('cons', false);
-            setTag('cons', 'Thức dậy (Nhờ Event=True)', 'ok');
-        }
-
-        // --- CỦA CONSUMER (Tiếp tục) ---
-        // Bước 6: Consumer vào lấy dữ liệu
-        if(frame === 11) {
-            move('cons', '615px', '220px'); // Đi lọt vào trong Buffer
-            setTag('cons', 'Lấy dữ liệu ra xử lý...');
-        }
-
-        // Bước 7: Xóa dữ liệu và Gọi clear() reset Event
-        if(frame === 13) {
-            dataItem.style.opacity = 0;
-            buffer.style.background = "rgba(127, 143, 166, 0.1)";
-            
-            setTag('cons', 'event.clear()', 'err');
+            setTag('prod', 'event.clear()', 'err');
             if(sigStatus) { 
                 sigStatus.innerText = "Event Flag: False"; 
                 sigStatus.style.color = "#f1c40f"; 
                 sigStatus.style.borderColor = "#f1c40f"; 
             }
+
+            setDim('cons', false);
+            setTag('cons', 'Thức dậy (Đã nhận tín hiệu)', 'ok');
+        }
+
+        // Bước 6: Producer lùi về vị trí cũ và Sleep. Consumer tiến vào lấy dữ liệu.
+        if(frame === 11) {
+            move('prod', '320px', '100px'); 
+            setTag('prod', ' '); // Đúng với chu trình của Producer trong giáo trình
+
+            move('cons', '615px', '220px'); // Đi lọt vào trong Buffer
+            setTag('cons', 'Lấy dữ liệu ra xử lý...');
+        }
+
+        // --- CỦA CONSUMER (Tiếp tục) ---
+        // Bước 7: Xóa dữ liệu (Không còn gọi clear ở đây nữa)
+        if(frame === 13) {
+            dataItem.style.opacity = 0;
+            buffer.style.background = "rgba(127, 143, 166, 0.1)";
+            
+            setTag('cons', 'Xử lý xong', 'ok');
         }
 
         // Bước 8: Consumer đi xuống dưới
@@ -333,7 +335,6 @@ function runVideoFrame() {
 
         // Bước 9: CẢ HAI CÙNG RỜI KHỎI MÀN HÌNH
         if(frame === 16) {
-            // SỬA TẠI ĐÂY: Cho cả 2 cùng move ra tọa độ 1000px
             move('cons', '1000px', '420px'); 
             setTag('cons', 'Hoàn thành');
 
