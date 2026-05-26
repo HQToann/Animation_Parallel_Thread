@@ -82,11 +82,21 @@ function initSim() {
         html += createBlock('p', 'thread t-a', 'Thợ', 'top: 265px; left: -150px;');
     } 
     else if (mode === 'event') {
-        html += `<div class="gate" id="gate"><div class="gate-tag" id="gate-tag"></div></div>`;
-        html += createBlock('t1', 'thread t-a', 'A', 'top: 100px; left: -150px;');
-        html += createBlock('t2', 'thread t-b', 'B', 'top: 220px; left: -150px;');
-        html += createBlock('t3', 'thread t-c', 'C', 'top: 340px; left: -150px;');
-    } 
+        // Vùng đệm
+        html += createBlock('buffer', 'zone', 'Bộ Đệm', 'width: 280px; height: 180px; top: 160px; left: 500px;');
+        
+        // Gói dữ liệu
+        html += `<div class="obj icon" id="data-item" style="top: 225px; left: 615px; opacity: 0; font-size: 50px; z-index: 15;">📦</div>`;
+        
+        // Biển báo Trạng thái Lock & Tín hiệu (Để riêng biệt, không đè nhau)
+        html += `<div class="tag show" id="lock-status" style="top: 20px; left: 420px; font-size: 14px; border: 2px solid #3498db; color: #3498db; z-index: 100; padding: 6px 12px; transition: 0.3s;">Trạng thái Lock: Mở</div>`;
+        html += `<div class="tag show" id="signal-status" style="top: 20px; left: 650px; font-size: 14px; border: 2px solid #f1c40f; color: #f1c40f; z-index: 100; padding: 6px 12px; transition: 0.3s;">Tín hiệu: Trống</div>`;
+        
+        // Hai luồng
+        html += createBlock('cons', 'thread t-b', 'Khách', 'top: 265px; left: -150px;');
+        html += createBlock('prod', 'thread t-a', 'Thợ', 'top: 175px; left: -150px;');
+    }
+
     else if (mode === 'race') {
         html += createBlock('db', 'zone', 'Tài Khoản Chung', 'width: 240px; height: 120px; top: 150px; left: 330px;');
         html += createBlock('t1', 'thread t-a', 'Luồng 1', 'top: 180px; left: -150px;');
@@ -193,7 +203,6 @@ function runVideoFrame() {
         if(frame === 9) { setDim('t2', false); move('t2', '630px', '210px'); setTag('t2', 'Vào được', 'ok'); setLock('zone', true); setTag('zone', 'Khóa', 'err'); }
         if(frame === 11) { move('t2', '1000px'); setTag('t2', 'lock.release()'); setLock('zone', false); clearTag('zone'); }
         
-        // --- LUỒNG THỨ 3 (C) XUẤT HIỆN VÀ GÂY LỖI ---
         if(frame === 13) { move('t3', '400px'); setTag('t3', 'Chưa acquire()'); }
         if(frame === 15) { setTag('t3', 'lock.release()', 'err'); }
         if(frame === 16) { 
@@ -253,31 +262,117 @@ function runVideoFrame() {
     }
     
     else if (mode === 'event') {
-        if(frame === 1) { move('t1', '500px'); move('t2', '500px'); move('t3', '500px'); }
-        if(frame === 2) { 
-            setDim('t1', true); setDim('t2', true); setDim('t3', true); 
-            setTag('t1', 'event.wait()'); setTag('t2', 'event.wait()'); setTag('t3', 'event.wait()'); 
-            document.getElementById('gate-tag').style.opacity = 1;
-            document.getElementById('gate-tag').innerText = "False";
+        let lkStatus = document.getElementById('lock-status');
+        let sigStatus = document.getElementById('signal-status');
+        let buffer = document.getElementById('buffer');
+        let dataItem = document.getElementById('data-item');
+
+        // --- CỦA CONSUMER ---
+        // Bước 1: Consumer kiểm tra buffer (Rỗng -> Block)
+        if(frame === 1) {
+            move('cons', '320px');
+            setTag('cons', 'Check: Rỗng -> Bị chặn (Block)', 'err');
+            setDim('cons', true); 
         }
-        if(frame === 4) { 
-            document.getElementById('gate').className = 'gate open'; 
-            document.getElementById('gate-tag').innerText = "event.set()";
-            document.getElementById('gate-tag').style.color = "#4cd137";
+
+        // --- CỦA PRODUCER ---
+        // Bước 2: Producer tạo item, kiểm tra (Có chỗ -> Tiếp tục)
+        if(frame === 3) {
+            move('prod', '320px', '100px');
+            setTag('prod', 'Tạo item. Check: Có chỗ', 'ok');
         }
-        if(frame === 5) { 
-            setDim('t1', false); setDim('t2', false); setDim('t3', false); 
-            clearTag('t1'); clearTag('t2'); clearTag('t3'); 
+
+        // Bước 3: Producer xin Lock
+        if(frame === 5) {
+            setTag('prod', 'acquire() -> Xin Lock thành công', 'ok');
+            if(lkStatus) { 
+                lkStatus.innerText = "Lock: Bị giữ (Bởi Producer)"; 
+                lkStatus.style.color = "#e84118"; 
+                lkStatus.style.borderColor = "#e84118"; 
+            }
+            buffer.style.borderColor = "#e84118"; // Viền buffer đỏ lên
         }
-        if(frame === 6) { move('t1', '1000px'); move('t2', '1000px'); move('t3', '1000px'); }
-        if(frame === 8) { 
-            document.getElementById('gate').className = 'gate'; 
-            document.getElementById('gate-tag').innerText = "event.clear()";
-            document.getElementById('gate-tag').style.color = "#f1c40f";
+
+        // Bước 4: Producer vào ghi dữ liệu
+        if(frame === 7) {
+            move('prod', '615px', '220px'); // Đi lọt vào trong Buffer
+            setTag('prod', 'Đang ghi dữ liệu...');
         }
-        if(frame === 10) { initSim(); }
+
+        // Bước 5: Hiện dữ liệu, Phát tín hiệu, và Trả Lock
+        if(frame === 9) {
+            dataItem.style.opacity = 1;
+            buffer.style.background = "rgba(76, 209, 55, 0.2)"; // Xanh lên báo hiệu có đồ
+            
+            setTag('prod', 'Phát tín hiệu & release() Lock', 'ok');
+            if(sigStatus) { 
+                sigStatus.innerText = "Tín hiệu: Đã có dữ liệu!"; 
+                sigStatus.style.color = "#4cd137"; 
+                sigStatus.style.borderColor = "#4cd137"; 
+            }
+            if(lkStatus) { 
+                lkStatus.innerText = "Trạng thái Lock: Mở"; 
+                lkStatus.style.color = "#3498db"; 
+                lkStatus.style.borderColor = "#3498db"; 
+            }
+            buffer.style.borderColor = "#7f8fa6"; // Trả lại viền xám
+            move('prod', '320px', '100px'); // Producer đi ra ngoài
+        }
+
+        // --- CỦA CONSUMER (Thức dậy) ---
+        // Bước 6: Consumer thức dậy, xin Lock
+        if(frame === 11) {
+            setDim('cons', false);
+            setTag('cons', 'Thức dậy & acquire() Lock', 'ok');
+            if(lkStatus) { 
+                lkStatus.innerText = "Lock: Bị giữ (Bởi Consumer)"; 
+                lkStatus.style.color = "#e84118"; 
+                lkStatus.style.borderColor = "#e84118"; 
+            }
+            buffer.style.borderColor = "#e84118"; 
+        }
+
+        // Bước 7: Consumer vào lấy dữ liệu
+        if(frame === 13) {
+            move('cons', '615px', '220px'); // Đi lọt vào trong Buffer
+            setTag('cons', 'Rút dữ liệu ra xử lý...');
+            dataItem.style.opacity = 0;
+            buffer.style.background = "rgba(127, 143, 166, 0.1)";
+        }
+
+        // Bước 8: Consumer phát tín hiệu, Trả Lock và đi xuống dưới
+        if(frame === 15) {
+            setTag('cons', 'Phát tín hiệu & release() Lock', 'ok');
+            if(sigStatus) { 
+                sigStatus.innerText = "Tín hiệu: Buffer trống"; 
+                sigStatus.style.color = "#f1c40f"; 
+                sigStatus.style.borderColor = "#f1c40f"; 
+            }
+            if(lkStatus) { 
+                lkStatus.innerText = "Trạng thái Lock: Mở"; 
+                lkStatus.style.color = "#3498db"; 
+                lkStatus.style.borderColor = "#3498db"; 
+            }
+            buffer.style.borderColor = "#7f8fa6";
+
+            // Consumer đi xuống phía dưới
+            move('cons', '615px', '420px');
+            setTag('cons', 'Đang xử lý dữ liệu...');
+            
+            // Producer đi hẳn ra ngoài
+            move('prod', '1000px', '100px'); 
+        }
+
+        // Bước 9: Vừa đi xuống tới nơi là lập tức rời khỏi màn hình (Không có khoảng nghỉ)
+        if(frame === 16) {
+            move('cons', '1000px', '420px'); // Đi thẳng ra khỏi mép phải
+            setTag('cons', 'Hoàn thành');
+        }
+
+        // Lặp lại vòng mô phỏng sớm hơn (Frame 18 thay vì 19)
+        if(frame === 18) { initSim(); }
     }
-    
+
     else if (mode === 'race') {
         if(frame === 1) { move('t1', '240px'); move('t2', '600px'); setTag('db', 'DƯ GỐC: 1000$'); }
         if(frame === 3) { setTag('t1', 'Đọc số dư: 1000$'); }
