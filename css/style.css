@@ -23,7 +23,7 @@ select { padding: 12px 20px; font-size: 16px; border-radius: 5px; border: none; 
 .title-box { position: absolute; top: 15px; left: 20px; font-size: 22px; color: #fbc531; font-weight: bold; z-index: 100; text-transform: uppercase; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
 .hud-box { position: absolute; top: 15px; right: 20px; font-size: 20px; color: #4cd137; font-weight: bold; background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 5px; z-index: 100; display: none; }
 
-.obj { position: absolute; transition: all 1.2s ease-in-out; display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; border-radius: 8px; box-sizing: border-box; }
+.obj { position: absolute; transition: all 1.8s cubic-bezier(0.45, 0, 0.55, 1); display: flex; justify-content: center; align-items: center; font-weight: bold; color: white; border-radius: 8px; box-sizing: border-box; }
 
 .thread { width: 60px; height: 60px; background: #3498db; z-index: 20; box-shadow: 0 4px 6px rgba(0,0,0,0.4); border: 2px solid transparent; }
 .thread.t-a { background: #e84118; }
@@ -45,3 +45,24 @@ select { padding: 12px 20px; font-size: 16px; border-radius: 5px; border: none; 
 .gate { position: absolute; width: 12px; height: 350px; background: #e84118; left: 650px; top: 75px; transition: 0.5s; z-index: 15; box-shadow: 0 0 15px #e84118; border-radius: 6px; }
 .gate.open { background: #4cd137; box-shadow: 0 0 15px #4cd137; }
 .gate-tag { position: absolute; top: -35px; left: -50px; background: #2d3436; color: #f1c40f; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-family: monospace; font-size: 14px; opacity: 0; transition: 0.3s; border: 1px solid #7f8fa6;}
+/* ============================================================
+   BỔ SUNG: Màu cyan cho tên hàm Python hiển thị thời gian thực
+   (Không đụng vào CSS cũ bên trên)
+   ============================================================ */
+
+/* Tag loại 'fn' — tên hàm/phương thức Python */
+.tag.fn-tag {
+    color: #00d2d3 !important;
+    border-color: #00d2d3 !important;
+    background: rgba(0, 210, 211, 0.12) !important;
+}
+
+/* Hiệu ứng nhấp nháy nhẹ khi tag hiển thị tên hàm quan trọng */
+@keyframes tag-flash {
+    0%   { opacity: 1; }
+    40%  { opacity: 0.6; }
+    100% { opacity: 1; }
+}
+.tag.show {
+    animation: tag-flash 0.4s ease;
+}
