@@ -12,7 +12,9 @@ const screen = document.getElementById('sim-screen');
 
 /* ---- Helpers ---- */
 function createBlock(id, cls, text, style) {
-    return `<div class="obj ${cls}" id="${id}" style="${style}">${text}<div class="tag" id="tag-${id}"></div></div>`;
+    // Thêm transition 0.8s để các khối di chuyển nhanh hơn một chút
+    let fastStyle = `transition: all 0.8s ease; ${style || ''}`;
+    return `<div class="obj ${cls}" id="${id}" style="${fastStyle}">${text}<div class="tag" id="tag-${id}"></div></div>`;
 }
 
 function move(id, left, top) {
@@ -89,7 +91,8 @@ function softReset() {
         move('t3', '-150px', '320px'); clearTag('t3');
         ['t1','t2','t3'].forEach(id => {
             let el = document.getElementById(id);
-            if (el) { el.style.transitionDuration = '1.8s'; el.classList.remove('dim'); }
+            // Giảm từ 1.8s xuống 1.0s để đồng bộ tốc độ di chuyển
+            if (el) { el.style.transitionDuration = '1.0s'; el.classList.remove('dim'); }
         });
     }
     else if (mode === 'lock') {
@@ -230,14 +233,14 @@ function initSim() {
     }
     else if (mode === 'condition') {
         html += createBlock('zone','zone','Bộ Đệm (Buffer)','width:250px;height:180px;top:160px;left:550px;');
-        html += `<div class="obj icon" id="item" style="top:225px;left:650px;opacity:0;font-size:50px;">📦</div>`;
+        html += `<div class="obj icon" id="item" style="transition: all 0.8s ease; top:225px;left:650px;opacity:0;font-size:50px;">📦</div>`;
         html += createBlock('c','thread t-b','Khách','top:175px;left:-150px;');
         html += createBlock('p','thread t-a','Thợ',  'top:265px;left:-150px;');
     }
     else if (mode === 'event') {
         /* Producer-Consumer theo đúng slide bài giảng */
         html += createBlock('buffer','zone','Bộ Đệm','width:280px;height:180px;top:160px;left:500px;');
-        html += `<div class="obj icon" id="data-item" style="top:225px;left:615px;opacity:0;font-size:50px;z-index:15;">📦</div>`;
+        html += `<div class="obj icon" id="data-item" style="transition: all 0.8s ease; top:225px;left:615px;opacity:0;font-size:50px;z-index:15;">📦</div>`;
         /* Thanh trạng thái */
         html += `<div class="tag show" id="lock-status"   style="top:20px;left:420px;font-size:14px;border:2px solid #3498db;color:#3498db;z-index:100;padding:6px 12px;transition:0.3s;">Trạng thái Lock: Mở</div>`;
         html += `<div class="tag show" id="signal-status" style="top:20px;left:650px;font-size:14px;border:2px solid #f1c40f;color:#f1c40f;z-index:100;padding:6px 12px;transition:0.3s;">Event Flag: False</div>`;
@@ -315,9 +318,10 @@ function runVideoFrame() {
             let e1 = document.getElementById('t1');
             let e2 = document.getElementById('t2');
             let e3 = document.getElementById('t3');
-            if (e1) e1.style.transitionDuration = '2.8s';
-            if (e2) e2.style.transitionDuration = '1.6s';
-            if (e3) e3.style.transitionDuration = '4s';
+            // Đã giảm thông số thời gian di chuyển đi một chút
+            if (e1) e1.style.transitionDuration = '1.8s';
+            if (e2) e2.style.transitionDuration = '1.0s';
+            if (e3) e3.style.transitionDuration = '2.5s';
             move('t1', '1000px'); move('t2', '1000px'); move('t3', '1000px');
         }
         if (frame === 11) { nextLoop(); }
